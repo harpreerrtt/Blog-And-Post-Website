@@ -1,3 +1,4 @@
+var blog_service = require("./blog-service.js"); //inputing local module
 var express = require("express");
 var app = express();
 
@@ -22,9 +23,10 @@ app.get("/about", (req, res) => {
 })
 
 
+// "/blog" respond and returning objects from posts.json
+app.get("/blog", (req, res) => {
 
-
-
+})
 
 
 //listen to 8080 port 
