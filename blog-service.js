@@ -3,11 +3,14 @@
  *  I declare that this assignment is my own work in accordance with Seneca  Academic Policy.  No part *  of this assignment has been copied manually or electronically from any other source 
  *  (including 3rd party web sites) or distributed to other students.
  * 
- *  Name: Harpreet Singh Student ID: 158928218 Date: feb 7th, 2023
+ *  Name: Harpreet Singh 
+ *   Student ID: 158928218 
+ *  Date: feb 7th, 2023
  *
- *  Cyclic Web App URL: ________________________________________________________
+ *  Cyclic Web App URL: https://lavender-camel-coat.cyclic.app
  *
- *  GitHub Repository URL: ______________________________________________________
+ *  GitHub Repository URL: git@github.com:harpreerrtt/web322-app.git
+ *                      or https://github.com/harpreerrtt/web322-app
  *
  ********************************************************************************/
 //global array 
