@@ -71,7 +71,7 @@ app.get("/blog", (req, res) => {
 
 // "route for  add posts"
 app.get("/posts/add", function(req, res) {
-    res.sendFile(__dirname + '/views/addpost.html')
+    res.sendFile(__dirname + '/views/addPost.html')
 })
 
 ///posts route for defined categories or for all
