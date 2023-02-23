@@ -166,7 +166,7 @@ function getPostsById(id) {
         const required_posts = posts.find((post) => post.id === parseInt(id));
 
         if (!required_posts) {
-            reject("no results returned for given date")
+            reject("no results returned for given ID")
             return;
         }
         resolve(required_posts);
