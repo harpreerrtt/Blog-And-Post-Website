@@ -26,8 +26,40 @@ var app = express();
 const multer = require("multer");
 const upload = multer();
 
+//cloudinary module for online storage
 const cloudinary = require('cloudinary').v2
 const streamifier = require('streamifier')
+
+//handlebars module immport
+const exphbs = require("express-handlebars");
+
+//setting execute engine for handlebar files 
+app.engine('.hbs', exphbs.engine({
+    extname: '.hbs',
+    helpers: {
+
+        //this is used to highlight the active navbar element pass to middleware
+        navLink: function(url, options) {
+            return '<li' +
+                ((url == app.locals.activeRoute) ? ' class="active" ' : '') +
+                '><a href="' + url + '">' + options.fn(this) + '</a></li>';
+        },
+
+        //needed later on
+        equal: function(lvalue, rvalue, options) {
+            if (arguments.length < 3)
+                throw new Error("Handlebars Helper equal needs 2 parameters");
+            if (lvalue != rvalue) {
+                return options.inverse(this);
+            } else {
+                return options.fn(this);
+            }
+        }
+
+    }
+}));
+app.set('view engine', '.hbs');
+
 
 var HTTP_PORT = process.env.PORT || 8080;
 
@@ -48,16 +80,27 @@ cloudinary.config({
 app.use(express.static('public'));
 
 
+//middleware to highlight the navigation bar
+app.use(function(req, res, next) {
+    let route = req.path.substring(1);
+    app.locals.activeRoute = "/" + (isNaN(route.split('/')[1]) ? route.replace(/\/(?!.*)/, "") : route.replace(/\/(.*)/, ""));
+    app.locals.viewingCategory = req.query.category;
+    next();
+});
 
 //redirect / to /about function 
 app.get("/", (req, res) => {
-    res.redirect('/about') //redirection
+    res.render('about', {
+        layout: "main"
+    })
 })
 
 
 //ouputing about.html to /about
 app.get("/about", (req, res) => {
-    res.sendFile(__dirname + '/views/about.html')
+    res.render('about', {
+        layout: "main"
+    })
 })
 
 
@@ -71,7 +114,9 @@ app.get("/blog", (req, res) => {
 
 // "route for  add posts"
 app.get("/posts/add", function(req, res) {
-    res.sendFile(__dirname + '/views/addPost.html')
+    res.render('addPost', {
+        layout: "main"
+    })
 })
 
 ///posts route for defined categories or for all
