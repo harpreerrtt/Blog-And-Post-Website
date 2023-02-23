@@ -164,8 +164,8 @@ function getPostsById(id) {
             return;
         }
         const required_posts = posts.find((post) => post.id === parseInt(id));
-        console.log(required_posts.length);
-        if (required_posts.length == 0) {
+
+        if (!required_posts) {
             reject("no results returned for given date")
             return;
         }
