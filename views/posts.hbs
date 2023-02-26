@@ -1,0 +1,42 @@
+
+{{!-- may be to used for route =./posts --}}
+<div class="row">
+    <div class="col-md-12">
+          <h2>Posts</h2>
+          <hr />
+
+        {{!-- //table div --}}
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Post ID</th>
+                        <th>Title</th>
+                        <th>Post Date</th>
+                        <th>Category</th>
+                        <th>Published</th>
+                    </tr>
+                </thead>
+                <tbody>
+                        {{!--confirming the posts.length if true  --}}
+                    {{#each data}} 
+                        <tr>
+                            <td>{{id}}</td>
+                            <td>{{title}}</td>
+                            <td>{{postDate}}</td>
+                            <td><a href='/posts?category={{category}}'>{{category}}</a></td>
+                            <td>{{published}}</td>
+                         </tr>
+                    {{/each}}
+
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+    {{#unless data}}
+    <div class="col-md-12 text-center">
+            <strong>{{message}}</strong>
+    </div>
+    {{/unless}}
+</div>
