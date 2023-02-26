@@ -1,5 +1,5 @@
 /*********************************************************************************
- *  WEB322 – Assignment 03
+ *  WEB322 – Assignment 04
  *  I declare that this assignment is my own work in accordance with Seneca  Academic Policy.  No part *  of this assignment has been copied manually or electronically from any other source 
  *  (including 3rd party web sites) or distributed to other students.
  * 
@@ -52,7 +52,6 @@ function initialize() {
 }
 
 // output all posts  with published =true
-
 function getPublishedPosts() {
 
     return new Promise(function(resolve, reject) {
@@ -68,8 +67,8 @@ function getPublishedPosts() {
 
     })
 }
-// output all posts
 
+// output all posts
 function getAllPosts() {
     return new Promise(function(resolve, reject) {
 
@@ -84,7 +83,6 @@ function getAllPosts() {
 }
 
 // output all categories
-
 function getCategories() {
     return new Promise(function(resolve, reject) {
 
@@ -96,6 +94,7 @@ function getCategories() {
 
     })
 }
+
 //add new post by post method
 function addPost(postData) {
     return new Promise((resolve, reject) => {
@@ -108,6 +107,12 @@ function addPost(postData) {
 
         //new id
         postData.id = posts.length + 1;
+
+        //adding new property post  Date
+        const currentDate = new Date();
+        const formattedDate = currentDate.toISOString().slice(0, 10); // format date as YYYY-MM-DD
+
+        postData.postDate = formattedDate;
 
         //appending data
         posts.push(postData);
@@ -173,6 +178,20 @@ function getPostsById(id) {
     })
 }
 
+//return both published and posts and category
+function getPublishedPostsByCategory(category) {
+
+    return new Promise(function(resolve, reject) {
+
+        if (posts.length == 0) {
+            reject("no results returned")
+            return;
+        }
+        const publishedPosts = posts.filter(post => post.published === true && post.category == category);
+        resolve(publishedPosts);
+    })
+}
 
 
-module.exports = { getPostsById, getPostsByCategory, getPostsByMinDate, addPost, initialize, getAllPosts, getPublishedPosts, getCategories };
+
+module.exports = { getPublishedPostsByCategory, getPostsById, getPostsByCategory, getPostsByMinDate, addPost, initialize, getAllPosts, getPublishedPosts, getCategories };
