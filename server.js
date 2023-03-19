@@ -1,5 +1,5 @@
 /*********************************************************************************
- *  WEB322 – Assignment 04
+ *  WEB322 – Assignment 05
  *  I declare that this assignment is my own work in accordance with Seneca  Academic Policy.  No part *  of this assignment has been copied manually or electronically from any other source 
  *  (including 3rd party web sites) or distributed to other students.
  * 
@@ -62,6 +62,14 @@ app.engine('.hbs', exphbs.engine({
         //strip-js remove unwanted javascript
         safeHTML: function(context) {
             return stripJs(context);
+        },
+
+        //helper for date
+        formatDate: function(dateObj) {
+            let year = dateObj.getFullYear();
+            let month = (dateObj.getMonth() + 1).toString();
+            let day = dateObj.getDate().toString();
+            return `${year}-${month.padStart(2, '0')}-${day.padStart(2,'0')}`;
         }
 
     }
@@ -83,19 +91,13 @@ cloudinary.config({
     secure: true
 });
 
-//buil in static middleware
+//built in static middleware
 app.use(express.static('public'));
 
+//middleware to post normal data i.e. text, int, without image, etc..
+app.use(express.urlencoded({ extended: true }));
 
-//middleware to highlight the navigation bar
-app.use(function(req, res, next) {
-    let route = req.path.substring(1);
-    app.locals.activeRoute = "/" + (isNaN(route.split('/')[1]) ? route.replace(/\/(?!.*)/, "") : route.replace(/\/(.*)/, ""));
-    app.locals.viewingCategory = req.query.category;
-    next();
-});
-
-//redirect / to /about function 
+//redirect / to /blog function 
 app.get("/", (req, res) => {
     res.redirect("/blog")
 })
@@ -210,9 +212,26 @@ app.get('/blog', async(req, res) => {
 });
 
 
-// "route for  add posts"
-app.get("/posts/add", function(req, res) {
-    res.render('addPost', {
+//middleware to highlight the navigation bar
+app.use(function(req, res, next) {
+    let route = req.path.substring(1);
+    app.locals.activeRoute = "/" + (isNaN(route.split('/')[1]) ? route.replace(/\/(?!.*)/, "") : route.replace(/\/(.*)/, ""));
+    app.locals.viewingCategory = req.query.category;
+    next();
+});
+
+app.get("/posts/add", (req, res) => {
+    blog_service.getCategories().then((data) => {
+        res.render('addPost', {
+            categories: data
+        })
+    }).catch(() => { res.render('addPost'), { categories: [] } })
+
+});
+
+//route for adding category
+app.get("/categories/add", (req, res) => {
+    res.render('addCategory', {
         layout: "main"
     })
 })
@@ -225,16 +244,32 @@ app.get("/posts", function(req, res) {
 
     if (category) {
         blog_service.getPostsByCategory(category)
-            .then((posts) => { res.render("posts", { data: posts }) })
+            .then((posts) => {
+                if (posts.length > 0) {
+                    res.render("posts", { data: posts })
+                } else {
+                    res.render("posts", { message: "no results" });
+                }
+            })
             .catch(() => { res.render("posts", { message: "no results" }); });
     } else if (minDatestr) {
         blog_service.getPostsByMinDate(minDatestr)
-            .then((posts) => { res.render("posts", { data: posts }) })
-            .catch(() => { res.render("posts", { message: "no results" }); });
+            .then((posts) => {
+                if (posts.length > 0) {
+                    res.render("posts", { data: posts })
+                } else {
+                    res.render("posts", { message: "no results" });
+                }
+            }).catch(() => { res.render("posts", { message: "no results" }); });
     } else {
         blog_service.getAllPosts()
-            .then((posts) => { res.render("posts", { data: posts }) })
-            .catch(() => { res.render("posts", { message: "no results" }); });
+            .then((posts) => {
+                if (posts.length > 0) {
+                    res.render("posts", { data: posts })
+                } else {
+                    res.render("posts", { message: "no results" });
+                }
+            }).catch(() => { res.render("posts", { message: "no results" }); });
     }
 })
 
@@ -242,11 +277,17 @@ app.get("/posts", function(req, res) {
 //  "categories"
 app.get("/categories", (req, res) => {
     blog_service.getCategories()
-        .then((categories) => { res.render("categories", { data: categories }) })
-        .catch(() => { res.render("posts", { message: "no results" }) });
+        .then((categories) => {
+            if (categories.length > 0) {
+                res.render("categories", { data: categories })
+            } else {
+                res.render("categories", { message: "no results" });
+            }
+        })
+        .catch(() => { res.render("categories", { message: "no results" }) });
 })
 
-// post data 
+// post new "posts" data  to table post
 app.post("/posts/add", upload.single("featureImage"), function(req, res, next) {
 
     //taken from prof
@@ -300,11 +341,55 @@ app.post("/posts/add", upload.single("featureImage"), function(req, res, next) {
 
 })
 
-// route == unmatched
+//post new category to category table
+app.post("/categories/add", (req, res, next) => {
+
+    blog_service.addCategory(req.body)
+        .then((newCategoryData) => {
+            console.log("New Category post added:", newCategoryData);
+
+            res.redirect("/categories");
+        })
+        .catch((error) => {
+            console.log("Error occurred:", error);
+            res.status(500).send(error);
+        });
+})
+
+//delete the category row
+app.get("/categories/delete/:id", function(req, res) {
+
+    console.log(req.params.id); // need to be deleted later on
+    blog_service.deleteCategoryById(req.params.id)
+        .then(() => {
+            console.log("Required Category was successfully deleted.");
+            res.redirect('/categories');
+        })
+        .catch((error) => {
+            console.log("Error occurred:", error);
+            res.status(500).send(error);
+        })
+})
+
+//delete the post row
+app.get("/posts/delete/:id", ((req, res) => {
+
+    blog_service.deletePostById(req.params.id)
+        .then(() => {
+            console.log("Required Post was successfully deleted.");
+            res.redirect('/posts');
+        })
+        .catch((error) => {
+            console.log("Error occurred:", error);
+            res.status(500).send(error);
+            req.send("Unable to Remove post / post not found)");
+        });
+}))
+
+//middleware route == unmatched
 app.use((req, res) => {
     res.status(404).render("404");
 });
-
 
 
 //listen to 8080 port 
