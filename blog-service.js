@@ -185,7 +185,6 @@ function getPostsByMinDate(minDateStr) {
 
         //extract all posts
         Post.findAll({
-                attributes: ['body', 'title', 'postDate', 'featureImage', 'published'],
                 where: {
                     postDate: {
                         [gte]: new Date(minDateStr)
