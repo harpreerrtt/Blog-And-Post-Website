@@ -159,7 +159,6 @@ function getPostsByCategory(category_passed) {
     return new Promise((resolve, reject) => {
         //extract all posts
         Post.findAll({
-                attributes: ['body', 'title', 'postDate', 'featureImage', 'published'],
                 where: {
                     //mostly wrong be cause of strind  == number
                     id: category_passed
